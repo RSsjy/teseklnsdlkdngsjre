@@ -165,3 +165,4 @@ build/ios/Debug-iphonesimulator/BoringSSL-GRPC/openssl_grpc.framework/openssl_gr
 build/ios/Debug-iphonesimulator/BoringSSL-GRPC/openssl_grpc.framework/_CodeSignature/CodeResources
 build/ios/Debug-iphonesimulator/abseil/absl.framework/absl
 build/ios/Debug-iphonesimulator/abseil/absl.framework/_CodeSignature/CodeResources
+.DS_Store

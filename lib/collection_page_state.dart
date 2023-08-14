@@ -20,7 +20,7 @@ class CollectionPageState extends State<CollectionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Collection'),
+        title: const Text('Inventory'),
         actions: [
           DropdownButton<String>(
             value: sortBy,
