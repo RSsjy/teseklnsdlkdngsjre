@@ -11,6 +11,7 @@ void addItemToCollectionDialog(
       int par = 0;
       int amountExpiring = 0;
       String exp = '';
+      String location = ''; // Added location variable
       return AlertDialog(
         title: const Text('Add Item'),
         content: Column(
@@ -59,6 +60,14 @@ void addItemToCollectionDialog(
                 labelText: 'Expiration',
               ),
             ),
+            TextField(
+              onChanged: (value) {
+                location = value; // Update location variable
+              },
+              decoration: const InputDecoration(
+                labelText: 'Location',
+              ),
+            ),
           ],
         ),
         actions: [
@@ -70,6 +79,7 @@ void addItemToCollectionDialog(
                 'par': par,
                 'amount expiring': amountExpiring,
                 'exp': exp,
+                'location': location, // Added location attribute
               });
               Navigator.pop(context);
             },
@@ -88,20 +98,22 @@ void addItemToCollectionDialog(
 }
 
 void editItemDialog(BuildContext context, String documentId,
-    FirebaseFirestore firestore, String collectionName) {
+    FirebaseFirestore firestore, String collectionName, String initialName) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      String itemName = '';
+      String itemName = initialName; // Set the initial value of itemName
       int count = 0;
       int par = 0;
       int amountExpiring = 0;
       String exp = '';
+      String location = ''; // Added location variable
       return AlertDialog(
-        title: const Text('Edit Item'),
+        title: Text('Edit $itemName'), // Display the item name in the title
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            //! Admin Only
             TextField(
               onChanged: (value) {
                 itemName = value;
@@ -109,6 +121,8 @@ void editItemDialog(BuildContext context, String documentId,
               decoration: const InputDecoration(
                 labelText: 'Item Name',
               ),
+              controller: TextEditingController(
+                  text: itemName), // Set the initial value of the TextField
             ),
             TextField(
               onChanged: (value) {
@@ -119,6 +133,7 @@ void editItemDialog(BuildContext context, String documentId,
               ),
               keyboardType: TextInputType.number,
             ),
+            //! Admin Only
             TextField(
               onChanged: (value) {
                 par = int.tryParse(value) ?? 0;
@@ -145,6 +160,14 @@ void editItemDialog(BuildContext context, String documentId,
                 labelText: 'Expiration',
               ),
             ),
+            TextField(
+              onChanged: (value) {
+                location = value; // Update location variable
+              },
+              decoration: const InputDecoration(
+                labelText: 'Location',
+              ),
+            ),
           ],
         ),
         actions: [
@@ -166,6 +189,9 @@ void editItemDialog(BuildContext context, String documentId,
               if (exp.isNotEmpty) {
                 updatedData['exp'] = exp;
               }
+              if (location.isNotEmpty) {
+                updatedData['location'] = location; // Added location attribute
+              }
               if (updatedData.isNotEmpty) {
                 firestore
                     .collection(collectionName)
@@ -175,6 +201,12 @@ void editItemDialog(BuildContext context, String documentId,
               Navigator.pop(context);
             },
             child: const Text('Update'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Cancel'),
           ),
         ],
       );

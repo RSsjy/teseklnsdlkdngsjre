@@ -24,7 +24,7 @@ class CollectionPageState extends State<CollectionPage> {
         actions: [
           DropdownButton<String>(
             value: sortBy,
-            items: ['name', 'exp'].map((String value) {
+            items: ['name', 'exp', 'location'].map((String value) {
               return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value),
@@ -89,6 +89,8 @@ class CollectionPageState extends State<CollectionPage> {
                     final par = data['par'] ?? 0;
                     final amountExpiring = data['amount expiring'] ?? 0;
                     final exp = data['exp'] ?? '';
+                    final location =
+                        data['location'] ?? ''; // Added location retrieval
                     final isGrayBackground =
                         index % 2 == 1; // Check if index is odd
                     final backgroundColor =
@@ -104,6 +106,7 @@ class CollectionPageState extends State<CollectionPage> {
                             Text('Par: $par'),
                             Text('Amount Expiring: $amountExpiring'),
                             Text('Expiration: $exp'),
+                            Text('Location: $location'), // Display location
                           ],
                         ),
                         onTap: () {
@@ -141,6 +144,7 @@ class CollectionPageState extends State<CollectionPage> {
               },
             ),
           ),
+          //! Admin Only
           ElevatedButton(
             onPressed: () {
               addItemToCollectionDialog(context, _firestore, collectionName);
@@ -154,9 +158,18 @@ class CollectionPageState extends State<CollectionPage> {
 
   void itemOptionsDialog(BuildContext context, String documentId,
       FirebaseFirestore firestore, String collectionName) {
+    String itemName = ''; // Assign an initial value
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        // Get the item name from the database
+        firestore.collection(collectionName).doc(documentId).get().then((doc) {
+          setState(() {
+            itemName = doc.data()!['name'];
+          });
+        });
+
         return AlertDialog(
           title: const Text('Item Options'),
           content: Column(
@@ -164,15 +177,15 @@ class CollectionPageState extends State<CollectionPage> {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context); // Close the options dialog
-                  editItemDialog(
-                      context, documentId, firestore, collectionName);
+                  Navigator.pop(context);
+                  editItemDialog(context, documentId, firestore, collectionName,
+                      itemName); // Pass the itemName variable here
                 },
                 child: const Text('Edit'),
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context); // Close the options dialog
+                  Navigator.pop(context);
                   deleteItemDialog(
                       context, documentId, firestore, collectionName);
                 },
