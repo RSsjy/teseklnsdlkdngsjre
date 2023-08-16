@@ -114,16 +114,16 @@ void editItemDialog(BuildContext context, String documentId,
           mainAxisSize: MainAxisSize.min,
           children: [
             //! Admin Only
-            TextField(
-              onChanged: (value) {
-                itemName = value;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Item Name',
-              ),
-              controller: TextEditingController(
-                  text: itemName), // Set the initial value of the TextField
-            ),
+            // TextField(
+            //   onChanged: (value) {
+            //     itemName = value;
+            //   },
+            //   decoration: const InputDecoration(
+            //     labelText: 'Item Name',
+            //   ),
+            //   controller: TextEditingController(
+            //       text: itemName), // Set the initial value of the TextField
+            // ),
             TextField(
               onChanged: (value) {
                 count = int.tryParse(value) ?? 0;
@@ -134,15 +134,15 @@ void editItemDialog(BuildContext context, String documentId,
               keyboardType: TextInputType.number,
             ),
             //! Admin Only
-            TextField(
-              onChanged: (value) {
-                par = int.tryParse(value) ?? 0;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Par',
-              ),
-              keyboardType: TextInputType.number,
-            ),
+            // TextField(
+            //   onChanged: (value) {
+            //     par = int.tryParse(value) ?? 0;
+            //   },
+            //   decoration: const InputDecoration(
+            //     labelText: 'Par',
+            //   ),
+            //   keyboardType: TextInputType.number,
+            // ),
             TextField(
               onChanged: (value) {
                 amountExpiring = int.tryParse(value) ?? 0;
@@ -160,14 +160,15 @@ void editItemDialog(BuildContext context, String documentId,
                 labelText: 'Expiration',
               ),
             ),
-            TextField(
-              onChanged: (value) {
-                location = value; // Update location variable
-              },
-              decoration: const InputDecoration(
-                labelText: 'Location',
-              ),
-            ),
+            //! Admin Only
+            // TextField(
+            //   onChanged: (value) {
+            //     location = value; // Update location variable
+            //   },
+            //   decoration: const InputDecoration(
+            //     labelText: 'Location',
+            //   ),
+            // ),
           ],
         ),
         actions: [

@@ -102,11 +102,11 @@ class CollectionPageState extends State<CollectionPage> {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Text('Location: $location'), // Display location
                             Text('Count: $count'),
                             Text('Par: $par'),
                             Text('Amount Expiring: $amountExpiring'),
                             Text('Expiration: $exp'),
-                            Text('Location: $location'), // Display location
                           ],
                         ),
                         onTap: () {
@@ -145,12 +145,12 @@ class CollectionPageState extends State<CollectionPage> {
             ),
           ),
           //! Admin Only
-          ElevatedButton(
-            onPressed: () {
-              addItemToCollectionDialog(context, _firestore, collectionName);
-            },
-            child: const Text('Add Item'),
-          ),
+          // ElevatedButton(
+          //   onPressed: () {
+          //     addItemToCollectionDialog(context, _firestore, collectionName);
+          //   },
+          //   child: const Text('Add Item'),
+          // ),
         ],
       ),
     );
@@ -158,41 +158,68 @@ class CollectionPageState extends State<CollectionPage> {
 
   void itemOptionsDialog(BuildContext context, String documentId,
       FirebaseFirestore firestore, String collectionName) {
-    String itemName = ''; // Assign an initial value
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        // Get the item name from the database
-        firestore.collection(collectionName).doc(documentId).get().then((doc) {
-          setState(() {
-            itemName = doc.data()!['name'];
-          });
-        });
+        return FutureBuilder<DocumentSnapshot>(
+          future: firestore.collection(collectionName).doc(documentId).get(),
+          builder:
+              (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasError) {
+                return AlertDialog(
+                  title: const Text('Error'),
+                  content:
+                      Text('Error fetching item details: ${snapshot.error}'),
+                );
+              }
+              if (!snapshot.hasData || !snapshot.data!.exists) {
+                return const AlertDialog(
+                  title: Text('Error'),
+                  content: Text('Item not found'),
+                );
+              }
+              String itemName =
+                  (snapshot.data!.data() as Map<String, dynamic>)['name'] ??
+                      'Unknown Item';
 
-        return AlertDialog(
-          title: const Text('Item Options'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  editItemDialog(context, documentId, firestore, collectionName,
-                      itemName); // Pass the itemName variable here
-                },
-                child: const Text('Edit'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  deleteItemDialog(
-                      context, documentId, firestore, collectionName);
-                },
-                child: const Text('Delete'),
-              ),
-            ],
-          ),
+              return AlertDialog(
+                title: Text(itemName), // Set the title to the item name
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        editItemDialog(
+                            context,
+                            documentId,
+                            firestore,
+                            collectionName,
+                            itemName); // Pass the itemName variable here
+                      },
+                      child: const Text('Update'),
+                    ),
+                    //! Admin Only
+                    // ElevatedButton(
+                    //   onPressed: () {
+                    //     Navigator.pop(context);
+                    //     deleteItemDialog(
+                    //         context, documentId, firestore, collectionName);
+                    //   },
+                    //   child: const Text('Delete'),
+                    // ),
+                  ],
+                ),
+              );
+            } else {
+              // While the item details are being fetched, show a loading indicator
+              return const AlertDialog(
+                title: Text('Loading...'),
+                content: CircularProgressIndicator(),
+              );
+            }
+          },
         );
       },
     );
