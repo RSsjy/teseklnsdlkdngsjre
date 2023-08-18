@@ -27,6 +27,14 @@ void addItemToCollectionDialog(
             ),
             TextField(
               onChanged: (value) {
+                location = value; // Update location variable
+              },
+              decoration: const InputDecoration(
+                labelText: 'Location',
+              ),
+            ),
+            TextField(
+              onChanged: (value) {
                 count = int.tryParse(value) ?? 0;
               },
               decoration: const InputDecoration(
@@ -57,15 +65,7 @@ void addItemToCollectionDialog(
                 exp = value;
               },
               decoration: const InputDecoration(
-                labelText: 'Expiration',
-              ),
-            ),
-            TextField(
-              onChanged: (value) {
-                location = value; // Update location variable
-              },
-              decoration: const InputDecoration(
-                labelText: 'Location',
+                labelText: 'Expiration (YYYY-MM)',
               ),
             ),
           ],
@@ -103,17 +103,18 @@ void editItemDialog(
     FirebaseFirestore firestore,
     String collectionName,
     String initialName,
-    String initialLocation) {
-  // Added initialLocation parameter
+    String initialLocation,
+    String initialExp,
+    int initialPar) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
       String itemName = initialName;
       int count = 0;
-      int par = 0;
+      int par = initialPar;
       int amountExpiring = 0;
-      String exp = '';
       String location = initialLocation; // Set the initial value of location
+      String exp = initialExp; // Set the initial value of exp
 
       return AlertDialog(
         title: Text('Edit $itemName'),
@@ -149,6 +150,9 @@ void editItemDialog(
               decoration: const InputDecoration(
                 labelText: 'Expiration Date (YYYY-MM)',
               ),
+              controller: TextEditingController(
+                  text:
+                      exp), // Set the initial value of the TextField for Expiration Date            ),
             ),
             //! Admin Only
             TextField(
@@ -158,7 +162,9 @@ void editItemDialog(
               decoration: const InputDecoration(
                 labelText: 'Par',
               ),
-              keyboardType: TextInputType.number,
+              controller: TextEditingController(
+                text: par.toString(), // Convert par to a String
+              ),
             ),
             TextField(
               onChanged: (value) {

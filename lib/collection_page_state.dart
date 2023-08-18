@@ -185,7 +185,11 @@ class CollectionPageState extends State<CollectionPage> {
               String itemLocation =
                   (snapshot.data!.data() as Map<String, dynamic>)['location'] ??
                       ''; // Retrieve the location
-
+              String itemExp =
+                  (snapshot.data!.data() as Map<String, dynamic>)['exp'] ?? '';
+              int itemPar = (snapshot.data!.data()
+                      as Map<String, dynamic>)['par'] as int? ??
+                  0;
               return AlertDialog(
                 title: Text(itemName), // Set the title to the item name
                 content: Column(
@@ -200,10 +204,13 @@ class CollectionPageState extends State<CollectionPage> {
                             firestore,
                             collectionName,
                             itemName,
-                            itemLocation); // Pass the itemName and itemLocation variables here
+                            itemLocation,
+                            itemExp, // This is the additional argument you need to add
+                            itemPar);
                       },
                       child: const Text('Update'),
                     ),
+
                     //! Admin Only
                     ElevatedButton(
                       onPressed: () {
