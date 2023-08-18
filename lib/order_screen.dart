@@ -53,7 +53,7 @@ class OrderScreen extends StatelessWidget {
                 final orderAmount = par - count;
 
                 return ListTile(
-                  title: Text('$itemName - $orderAmount'),
+                  title: Text('$itemName: $orderAmount'),
                 );
               },
             ),

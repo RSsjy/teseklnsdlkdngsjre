@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart'; // Import for date formatting
 
 void addItemToCollectionDialog(
     BuildContext context, FirebaseFirestore firestore, String collectionName) {
@@ -79,7 +80,9 @@ void addItemToCollectionDialog(
                 'par': par,
                 'amount expiring': amountExpiring,
                 'exp': exp,
-                'location': location, // Added location attribute
+                'location': location,
+                'updated': DateFormat('yyyy-MM-dd HH:mm')
+                    .format(DateTime.now()), // Add updated
               });
               Navigator.pop(context);
             },
@@ -208,6 +211,8 @@ void editItemDialog(
               if (location.isNotEmpty) {
                 updatedData['location'] = location; // Added location attribute
               }
+              updatedData['updated'] = DateFormat('yyyy-MM-dd HH:mm')
+                  .format(DateTime.now()); // Update updated
               if (updatedData.isNotEmpty) {
                 firestore
                     .collection(collectionName)

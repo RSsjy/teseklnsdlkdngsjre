@@ -24,7 +24,7 @@ class CollectionPageState extends State<CollectionPage> {
         actions: [
           DropdownButton<String>(
             value: sortBy,
-            items: ['name', 'exp', 'location'].map((String value) {
+            items: ['name', 'exp', 'location', 'updated'].map((String value) {
               return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value),
@@ -95,6 +95,8 @@ class CollectionPageState extends State<CollectionPage> {
                         index % 2 == 1; // Check if index is odd
                     final backgroundColor =
                         isGrayBackground ? Colors.grey[200] : Colors.white;
+                    final updated =
+                        data['updated'] ?? ''; // Retrieve the updated
                     return Container(
                       color: backgroundColor,
                       child: ListTile(
@@ -102,11 +104,13 @@ class CollectionPageState extends State<CollectionPage> {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Location: $location'), // Display location
-                            Text('Count: $count'),
-                            Text('Par: $par'),
-                            Text('Amount Expiring: $amountExpiring'),
-                            Text('Expiration: $exp'),
+                            Text('$location'),
+                            // Text('Location: $location'),
+                            Text('Stock: $count / $par'),
+                            // Text('Par: $par'),
+                            // Text('Amount Expiring: $amountExpiring'),
+                            Text('Exp Date: $exp ($amountExpiring / $count)'),
+                            Text('Updated: $updated'),
                           ],
                         ),
                         onTap: () {
@@ -192,8 +196,9 @@ class CollectionPageState extends State<CollectionPage> {
                   0;
               return AlertDialog(
                 title: Text(itemName), // Set the title to the item name
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
+                content: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
                     ElevatedButton(
                       onPressed: () {
@@ -210,7 +215,6 @@ class CollectionPageState extends State<CollectionPage> {
                       },
                       child: const Text('Update'),
                     ),
-
                     //! Admin Only
                     ElevatedButton(
                       onPressed: () {
