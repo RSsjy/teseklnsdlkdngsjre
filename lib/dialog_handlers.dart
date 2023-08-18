@@ -97,19 +97,26 @@ void addItemToCollectionDialog(
   );
 }
 
-void editItemDialog(BuildContext context, String documentId,
-    FirebaseFirestore firestore, String collectionName, String initialName) {
+void editItemDialog(
+    BuildContext context,
+    String documentId,
+    FirebaseFirestore firestore,
+    String collectionName,
+    String initialName,
+    String initialLocation) {
+  // Added initialLocation parameter
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      String itemName = initialName; // Set the initial value of itemName
+      String itemName = initialName;
       int count = 0;
       int par = 0;
       int amountExpiring = 0;
       String exp = '';
-      String location = ''; // Added location variable
+      String location = initialLocation; // Set the initial value of location
+
       return AlertDialog(
-        title: Text('Edit $itemName'), // Display the item name in the title
+        title: Text('Edit $itemName'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -121,17 +128,19 @@ void editItemDialog(BuildContext context, String documentId,
               decoration: const InputDecoration(
                 labelText: 'Item Name',
               ),
-              controller: TextEditingController(
-                  text: itemName), // Set the initial value of the TextField
+              controller: TextEditingController(text: itemName),
             ),
             //! Admin Only
             TextField(
               onChanged: (value) {
-                location = value; // Update location variable
+                location = value;
               },
               decoration: const InputDecoration(
                 labelText: 'Location',
               ),
+              controller: TextEditingController(
+                  text:
+                      location), // Set the initial value of the TextField for Location
             ),
             TextField(
               onChanged: (value) {

@@ -182,6 +182,9 @@ class CollectionPageState extends State<CollectionPage> {
               String itemName =
                   (snapshot.data!.data() as Map<String, dynamic>)['name'] ??
                       'Unknown Item';
+              String itemLocation =
+                  (snapshot.data!.data() as Map<String, dynamic>)['location'] ??
+                      ''; // Retrieve the location
 
               return AlertDialog(
                 title: Text(itemName), // Set the title to the item name
@@ -196,7 +199,8 @@ class CollectionPageState extends State<CollectionPage> {
                             documentId,
                             firestore,
                             collectionName,
-                            itemName); // Pass the itemName variable here
+                            itemName,
+                            itemLocation); // Pass the itemName and itemLocation variables here
                       },
                       child: const Text('Update'),
                     ),
