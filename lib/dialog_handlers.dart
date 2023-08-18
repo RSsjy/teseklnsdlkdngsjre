@@ -35,12 +35,11 @@ void addItemToCollectionDialog(
             ),
             TextField(
               onChanged: (value) {
-                count = int.tryParse(value) ?? 0;
+                exp = value;
               },
               decoration: const InputDecoration(
-                labelText: 'Count',
+                labelText: 'Expiration (YYYY-MM)',
               ),
-              keyboardType: TextInputType.number,
             ),
             TextField(
               onChanged: (value) {
@@ -62,11 +61,12 @@ void addItemToCollectionDialog(
             ),
             TextField(
               onChanged: (value) {
-                exp = value;
+                count = int.tryParse(value) ?? 0;
               },
               decoration: const InputDecoration(
-                labelText: 'Expiration (YYYY-MM)',
+                labelText: 'Count',
               ),
+              keyboardType: TextInputType.number,
             ),
           ],
         ),
@@ -193,13 +193,13 @@ void editItemDialog(
               if (itemName.isNotEmpty) {
                 updatedData['name'] = itemName;
               }
-              if (count != 0) {
+              if (count >= 0) {
                 updatedData['count'] = count;
               }
-              if (par != 0) {
+              if (par >= 0) {
                 updatedData['par'] = par;
               }
-              if (amountExpiring != 0) {
+              if (amountExpiring >= 0) {
                 updatedData['amount expiring'] = amountExpiring;
               }
               if (exp.isNotEmpty) {
