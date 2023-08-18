@@ -114,35 +114,43 @@ void editItemDialog(BuildContext context, String documentId,
           mainAxisSize: MainAxisSize.min,
           children: [
             //! Admin Only
-            // TextField(
-            //   onChanged: (value) {
-            //     itemName = value;
-            //   },
-            //   decoration: const InputDecoration(
-            //     labelText: 'Item Name',
-            //   ),
-            //   controller: TextEditingController(
-            //       text: itemName), // Set the initial value of the TextField
-            // ),
             TextField(
               onChanged: (value) {
-                count = int.tryParse(value) ?? 0;
+                itemName = value;
               },
               decoration: const InputDecoration(
-                labelText: 'Count',
+                labelText: 'Item Name',
+              ),
+              controller: TextEditingController(
+                  text: itemName), // Set the initial value of the TextField
+            ),
+            //! Admin Only
+            TextField(
+              onChanged: (value) {
+                location = value; // Update location variable
+              },
+              decoration: const InputDecoration(
+                labelText: 'Location',
+              ),
+            ),
+            TextField(
+              onChanged: (value) {
+                exp = value;
+              },
+              decoration: const InputDecoration(
+                labelText: 'Expiration Date (YYYY-MM)',
+              ),
+            ),
+            //! Admin Only
+            TextField(
+              onChanged: (value) {
+                par = int.tryParse(value) ?? 0;
+              },
+              decoration: const InputDecoration(
+                labelText: 'Par',
               ),
               keyboardType: TextInputType.number,
             ),
-            //! Admin Only
-            // TextField(
-            //   onChanged: (value) {
-            //     par = int.tryParse(value) ?? 0;
-            //   },
-            //   decoration: const InputDecoration(
-            //     labelText: 'Par',
-            //   ),
-            //   keyboardType: TextInputType.number,
-            // ),
             TextField(
               onChanged: (value) {
                 amountExpiring = int.tryParse(value) ?? 0;
@@ -154,21 +162,13 @@ void editItemDialog(BuildContext context, String documentId,
             ),
             TextField(
               onChanged: (value) {
-                exp = value;
+                count = int.tryParse(value) ?? 0;
               },
               decoration: const InputDecoration(
-                labelText: 'Expiration',
+                labelText: 'Count',
               ),
+              keyboardType: TextInputType.number,
             ),
-            //! Admin Only
-            // TextField(
-            //   onChanged: (value) {
-            //     location = value; // Update location variable
-            //   },
-            //   decoration: const InputDecoration(
-            //     labelText: 'Location',
-            //   ),
-            // ),
           ],
         ),
         actions: [

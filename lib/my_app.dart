@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const HomePage(),
         '/collection': (context) => const CollectionPage(),
       },
+      debugShowCheckedModeBanner: false,
     );
   }
 }

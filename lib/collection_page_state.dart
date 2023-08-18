@@ -145,12 +145,12 @@ class CollectionPageState extends State<CollectionPage> {
             ),
           ),
           //! Admin Only
-          // ElevatedButton(
-          //   onPressed: () {
-          //     addItemToCollectionDialog(context, _firestore, collectionName);
-          //   },
-          //   child: const Text('Add Item'),
-          // ),
+          ElevatedButton(
+            onPressed: () {
+              addItemToCollectionDialog(context, _firestore, collectionName);
+            },
+            child: const Text('Add Item'),
+          ),
         ],
       ),
     );
@@ -201,14 +201,14 @@ class CollectionPageState extends State<CollectionPage> {
                       child: const Text('Update'),
                     ),
                     //! Admin Only
-                    // ElevatedButton(
-                    //   onPressed: () {
-                    //     Navigator.pop(context);
-                    //     deleteItemDialog(
-                    //         context, documentId, firestore, collectionName);
-                    //   },
-                    //   child: const Text('Delete'),
-                    // ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        deleteItemDialog(
+                            context, documentId, firestore, collectionName);
+                      },
+                      child: const Text('Delete'),
+                    ),
                   ],
                 ),
               );
