@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'collection_page.dart';
-import 'dialog_handlers.dart';
 import 'order_screen.dart';
+import 'dialog_handlers.dart';
 
+//! Create then move into a folder named: Collection Folder
+
+//! Store in collection_page.dart
+class CollectionPage extends StatefulWidget {
+  const CollectionPage({Key? key}) : super(key: key);
+
+  @override
+  CollectionPageState createState() => CollectionPageState();
+}
+
+//! Store in collection_page_state.dart
 class CollectionPageState extends State<CollectionPage> {
   late String collectionName;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  String sortBy = 'name'; // Default sorting attribute
+  final List<String> _dropdownItems = ['name', 'exp', 'location', 'updated'];
+  String sortBy = 'location'; // Default sorting attribute
   bool isAscending = true; // Default sorting order
 
   @override
@@ -19,135 +30,10 @@ class CollectionPageState extends State<CollectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Inventory'),
-        actions: [
-          DropdownButton<String>(
-            value: sortBy,
-            items: ['name', 'exp', 'location', 'updated'].map((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-            onChanged: (newValue) {
-              setState(() {
-                sortBy = newValue!;
-              });
-            },
-          ),
-          Switch(
-            value: isAscending,
-            onChanged: (value) {
-              setState(() {
-                isAscending = value;
-              });
-            },
-            activeColor: Colors.green,
-            inactiveThumbColor: Colors.red,
-            activeTrackColor: Colors.lightGreenAccent,
-            inactiveTrackColor: Colors.redAccent,
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          OrderScreen(collectionName: collectionName)));
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.white),
-            child: const Text('Order', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
+      appBar: _buildAppBar(),
       body: Column(
         children: [
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: _firestore
-                  .collection(collectionName)
-                  .orderBy(sortBy,
-                      descending:
-                          !isAscending) // Sorting based on user's choice
-                  .snapshots(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Text('Loading...');
-                }
-                return ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final data = snapshot.data!.docs[index].data()
-                        as Map<String, dynamic>;
-                    final itemName = data['name'] ?? '';
-                    final count = data['count'] ?? 0;
-                    final par = data['par'] ?? 0;
-                    final amountExpiring = data['amount expiring'] ?? 0;
-                    final exp = data['exp'] ?? '';
-                    final location =
-                        data['location'] ?? ''; // Added location retrieval
-                    final isGrayBackground =
-                        index % 2 == 1; // Check if index is odd
-                    final backgroundColor =
-                        isGrayBackground ? Colors.grey[200] : Colors.white;
-                    final updated =
-                        data['updated'] ?? ''; // Retrieve the updated
-                    return Container(
-                      color: backgroundColor,
-                      child: ListTile(
-                        title: Text(itemName),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('$location'),
-                            // Text('Location: $location'),
-                            Text('Stock: $count / $par'),
-                            // Text('Par: $par'),
-                            // Text('Amount Expiring: $amountExpiring'),
-                            Text('Exp Date: $exp ($amountExpiring / $count)'),
-                            Text('Updated: $updated'),
-                          ],
-                        ),
-                        onTap: () {
-                          itemOptionsDialog(
-                              context,
-                              snapshot.data!.docs[index].id,
-                              _firestore,
-                              collectionName);
-                        },
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.add),
-                              onPressed: () {
-                                updateCount(snapshot.data!.docs[index].id,
-                                    count + 1, _firestore, collectionName);
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.remove),
-                              onPressed: () {
-                                if (count > 0) {
-                                  updateCount(snapshot.data!.docs[index].id,
-                                      count - 1, _firestore, collectionName);
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
+          Expanded(child: _buildStreamBuilder()),
           //! Admin Only
           ElevatedButton(
             onPressed: () {
@@ -160,83 +46,165 @@ class CollectionPageState extends State<CollectionPage> {
     );
   }
 
-  void itemOptionsDialog(BuildContext context, String documentId,
-      FirebaseFirestore firestore, String collectionName) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return FutureBuilder<DocumentSnapshot>(
-          future: firestore.collection(collectionName).doc(documentId).get(),
-          builder:
-              (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasError) {
-                return AlertDialog(
-                  title: const Text('Error'),
-                  content:
-                      Text('Error fetching item details: ${snapshot.error}'),
-                );
-              }
-              if (!snapshot.hasData || !snapshot.data!.exists) {
-                return const AlertDialog(
-                  title: Text('Error'),
-                  content: Text('Item not found'),
-                );
-              }
-              String itemName =
-                  (snapshot.data!.data() as Map<String, dynamic>)['name'] ??
-                      'Unknown Item';
-              String itemLocation =
-                  (snapshot.data!.data() as Map<String, dynamic>)['location'] ??
-                      ''; // Retrieve the location
-              String itemExp =
-                  (snapshot.data!.data() as Map<String, dynamic>)['exp'] ?? '';
-              int itemPar = (snapshot.data!.data()
-                      as Map<String, dynamic>)['par'] as int? ??
-                  0;
-              return AlertDialog(
-                title: Text(itemName), // Set the title to the item name
-                content: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  mainAxisSize: MainAxisSize.max,
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: const Text('Inventory'),
+      actions: [
+        DropdownButton<String>(
+          value: sortBy,
+          items: _dropdownItems.map((value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (newValue) {
+            setState(() {
+              sortBy = newValue!;
+            });
+          },
+        ),
+        Switch(
+          value: isAscending,
+          onChanged: (value) {
+            setState(() {
+              isAscending = value;
+            });
+          },
+          activeColor: Colors.green,
+          inactiveThumbColor: Colors.red,
+          activeTrackColor: Colors.lightGreenAccent,
+          inactiveTrackColor: Colors.redAccent,
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        OrderScreen(collectionName: collectionName)));
+          },
+          style: TextButton.styleFrom(foregroundColor: Colors.white),
+          child: const Text('Order', style: TextStyle(color: Colors.white)),
+        ),
+      ],
+    );
+  }
+
+  StreamBuilder<QuerySnapshot> _buildStreamBuilder() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore
+          .collection(collectionName)
+          .orderBy(sortBy, descending: !isAscending)
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('Loading...');
+        }
+        final docs = snapshot.data!.docs;
+        return ListView.builder(
+          itemCount: docs.length,
+          itemBuilder: (BuildContext context, int index) {
+            final doc = docs[index];
+            final data = doc.data() as Map<String, dynamic>;
+            final itemName = data['name'] ?? '';
+            final count = data['count'] ?? 0;
+            final par = data['par'] ?? 0;
+            final amountExpiring = data['amount expiring'] ?? 0;
+            final exp = data['exp'] ?? '';
+            final location = data['location'] ?? '';
+            final updated = data['updated'] ?? '';
+            final isGrayBackground = index % 2 == 1;
+            final backgroundColor =
+                isGrayBackground ? Colors.grey[200] : Colors.white;
+
+            return Container(
+              color: backgroundColor,
+              child: ListTile(
+                title: Text(itemName),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ElevatedButton(
+                    Text(location),
+                    Text('Stock: $count / $par'),
+                    Text('Exp Date: $exp ($amountExpiring / $count)'),
+                    Text('Updated: $updated'),
+                  ],
+                ),
+                onTap: () {
+                  itemOptionsDialog(context, doc, _firestore, collectionName);
+                },
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.add),
                       onPressed: () {
-                        Navigator.pop(context);
-                        editItemDialog(
-                            context,
-                            documentId,
-                            firestore,
-                            collectionName,
-                            itemName,
-                            itemLocation,
-                            itemExp, // This is the additional argument you need to add
-                            itemPar);
+                        updateCount(
+                            doc.id, count + 1, _firestore, collectionName);
                       },
-                      child: const Text('Update'),
                     ),
-                    //! Admin Only
-                    ElevatedButton(
+                    IconButton(
+                      icon: const Icon(Icons.remove),
                       onPressed: () {
-                        Navigator.pop(context);
-                        deleteItemDialog(
-                            context, documentId, firestore, collectionName);
+                        if (count > 0) {
+                          updateCount(
+                              doc.id, count - 1, _firestore, collectionName);
+                        }
                       },
-                      child: const Text('Delete'),
                     ),
                   ],
                 ),
-              );
-            } else {
-              // While the item details are being fetched, show a loading indicator
-              return const AlertDialog(
-                title: Text('Loading...'),
-                content: CircularProgressIndicator(),
-              );
-            }
+              ),
+            );
           },
         );
       },
     );
   }
+}
+
+//! Store in item_options_dialog.dart
+void itemOptionsDialog(BuildContext context, DocumentSnapshot itemData,
+    FirebaseFirestore firestore, String collectionName) {
+  // Use itemData directly instead of making a 'read' call
+  String itemName = itemData['name'] ?? 'Unknown Item';
+  String itemLocation = itemData['location'] ?? '';
+  String itemExp = itemData['exp'] ?? '';
+  int itemPar = itemData['par'] as int? ?? 0;
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(itemName),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            //! Admin Only
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                deleteItemDialog(
+                    context, itemData.id, firestore, collectionName);
+              },
+              child: const Text('Delete'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                editItemDialog(context, itemData.id, firestore, collectionName,
+                    itemName, itemLocation, itemExp, itemPar);
+              },
+              child: const Text('Update'),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }

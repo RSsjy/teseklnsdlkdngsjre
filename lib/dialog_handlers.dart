@@ -1,7 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart'; // Import for date formatting
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
+//! Create then move into a folder named: Dialog Handlers
+
+//! Store in add_item_dialog.dart
 void addItemToCollectionDialog(
     BuildContext context, FirebaseFirestore firestore, String collectionName) {
   showDialog(
@@ -12,7 +15,7 @@ void addItemToCollectionDialog(
       int par = 0;
       int amountExpiring = 0;
       String exp = '';
-      String location = ''; // Added location variable
+      String location = '';
       return AlertDialog(
         title: const Text('Add Item'),
         content: Column(
@@ -28,7 +31,7 @@ void addItemToCollectionDialog(
             ),
             TextField(
               onChanged: (value) {
-                location = value; // Update location variable
+                location = value;
               },
               decoration: const InputDecoration(
                 labelText: 'Location',
@@ -81,8 +84,8 @@ void addItemToCollectionDialog(
                 'amount expiring': amountExpiring,
                 'exp': exp,
                 'location': location,
-                'updated': DateFormat('yyyy-MM-dd HH:mm')
-                    .format(DateTime.now()), // Add updated
+                'updated':
+                    DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now()),
               });
               Navigator.pop(context);
             },
@@ -100,6 +103,36 @@ void addItemToCollectionDialog(
   );
 }
 
+//! Store in delete_item_dialog.dart
+void deleteItemDialog(BuildContext context, String documentId,
+    FirebaseFirestore firestore, String collectionName) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Delete Item'),
+        content: const Text('Are you sure you want to delete this item?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              firestore.collection(collectionName).doc(documentId).delete();
+              Navigator.pop(context);
+            },
+            child: const Text('Delete'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Cancel'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+//! Store in edit_item_dialog.dart
 void editItemDialog(
     BuildContext context,
     String documentId,
@@ -121,73 +154,75 @@ void editItemDialog(
 
       return AlertDialog(
         title: Text('Edit $itemName'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            //! Admin Only
-            TextField(
-              onChanged: (value) {
-                itemName = value;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Item Name',
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              //! Admin Only
+              TextField(
+                onChanged: (value) {
+                  itemName = value;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Item Name',
+                ),
+                controller: TextEditingController(text: itemName),
               ),
-              controller: TextEditingController(text: itemName),
-            ),
-            //! Admin Only
-            TextField(
-              onChanged: (value) {
-                location = value;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Location',
+              //! Admin Only
+              TextField(
+                onChanged: (value) {
+                  location = value;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Location',
+                ),
+                controller: TextEditingController(
+                    text:
+                        location), // Set the initial value of the TextField for Location
               ),
-              controller: TextEditingController(
-                  text:
-                      location), // Set the initial value of the TextField for Location
-            ),
-            TextField(
-              onChanged: (value) {
-                exp = value;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Expiration Date (YYYY-MM)',
+              TextField(
+                onChanged: (value) {
+                  exp = value;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Expiration Date (YYYY-MM)',
+                ),
+                controller: TextEditingController(
+                    text:
+                        exp), // Set the initial value of the TextField for Expiration Date
               ),
-              controller: TextEditingController(
-                  text:
-                      exp), // Set the initial value of the TextField for Expiration Date            ),
-            ),
-            //! Admin Only
-            TextField(
-              onChanged: (value) {
-                par = int.tryParse(value) ?? 0;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Par',
+              //! Admin Only
+              TextField(
+                onChanged: (value) {
+                  par = int.tryParse(value) ?? 0;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Par',
+                ),
+                controller: TextEditingController(
+                  text: par.toString(), // Convert par to a String
+                ),
               ),
-              controller: TextEditingController(
-                text: par.toString(), // Convert par to a String
+              TextField(
+                onChanged: (value) {
+                  amountExpiring = int.tryParse(value) ?? 0;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Amount Expiring',
+                ),
+                keyboardType: TextInputType.number,
               ),
-            ),
-            TextField(
-              onChanged: (value) {
-                amountExpiring = int.tryParse(value) ?? 0;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Amount Expiring',
+              TextField(
+                onChanged: (value) {
+                  count = int.tryParse(value) ?? 0;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Count',
+                ),
+                keyboardType: TextInputType.number,
               ),
-              keyboardType: TextInputType.number,
-            ),
-            TextField(
-              onChanged: (value) {
-                count = int.tryParse(value) ?? 0;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Count',
-              ),
-              keyboardType: TextInputType.number,
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -235,34 +270,7 @@ void editItemDialog(
   );
 }
 
-void deleteItemDialog(BuildContext context, String documentId,
-    FirebaseFirestore firestore, String collectionName) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Delete Item'),
-        content: const Text('Are you sure you want to delete this item?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              firestore.collection(collectionName).doc(documentId).delete();
-              Navigator.pop(context);
-            },
-            child: const Text('Delete'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Cancel'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
+//! Store in update_count.dart
 void updateCount(String documentId, int newCount, FirebaseFirestore firestore,
     String collectionName) {
   firestore.collection(collectionName).doc(documentId).update({

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:share/share.dart'; // Import for sharing functionality
 
+//! Store in order_screen.dart
 class OrderScreen extends StatelessWidget {
   final String collectionName;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -69,4 +70,12 @@ class OrderScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+//! Store in order_data.dart
+class OrderData {
+  final String name;
+  final int orderAmount;
+
+  OrderData({required this.name, required this.orderAmount});
 }
