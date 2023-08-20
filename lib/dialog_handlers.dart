@@ -141,14 +141,15 @@ void editItemDialog(
     String initialName,
     String initialLocation,
     String initialExp,
-    int initialPar) {
+    int initialPar,
+    int initialAmountExpiring) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
       String itemName = initialName;
       int count = 0;
       int par = initialPar;
-      int amountExpiring = 0;
+      int amountExpiring = initialAmountExpiring;
       String location = initialLocation; // Set the initial value of location
       String exp = initialExp; // Set the initial value of exp
 
@@ -211,6 +212,9 @@ void editItemDialog(
                   labelText: 'Amount Expiring',
                 ),
                 keyboardType: TextInputType.number,
+                controller: TextEditingController(
+                  text: amountExpiring.toString(), // Set the initial value
+                ),
               ),
               TextField(
                 onChanged: (value) {
