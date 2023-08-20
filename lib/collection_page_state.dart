@@ -175,6 +175,8 @@ void itemOptionsDialog(BuildContext context, DocumentSnapshot itemData,
   String itemLocation = itemData['location'] ?? '';
   String itemExp = itemData['exp'] ?? '';
   int itemPar = itemData['par'] as int? ?? 0;
+  int itemAmountExpiring = itemData['amount expiring'] as int? ??
+      0; // Extract the 'amount expiring' value
 
   showDialog(
     context: context,
@@ -197,8 +199,17 @@ void itemOptionsDialog(BuildContext context, DocumentSnapshot itemData,
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                editItemDialog(context, itemData.id, firestore, collectionName,
-                    itemName, itemLocation, itemExp, itemPar);
+                editItemDialog(
+                  context,
+                  itemData.id,
+                  firestore,
+                  collectionName,
+                  itemName,
+                  itemLocation,
+                  itemExp,
+                  itemPar,
+                  itemAmountExpiring,
+                ); // Pass the 'amount expiring' value
               },
               child: const Text('Update'),
             ),
