@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fireinvapp/tmep.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 //! Create then move into a folder named: Dialog Handlers
@@ -16,63 +18,86 @@ void addItemToCollectionDialog(
       int amountExpiring = 0;
       String exp = '';
       String location = '';
+      final expController = TextEditingController(text: exp); //new
       return AlertDialog(
         title: const Text('Add Item'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              onChanged: (value) {
-                itemName = value;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Item Name',
+        content: SingleChildScrollView(
+          child: //[
+              Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                onChanged: (value) {
+                  itemName = value;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Item Name',
+                ),
               ),
-            ),
-            TextField(
-              onChanged: (value) {
-                location = value;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Location',
+              TextField(
+                onChanged: (value) {
+                  location = value;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Location',
+                ),
               ),
-            ),
-            TextField(
-              onChanged: (value) {
-                exp = value;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Expiration (YYYY-MM)',
+              TextField(
+                onChanged: (value) {
+                  exp = value;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Expiration Date (YYYYMM)',
+                ),
+                keyboardType: TextInputType.number,
+                controller: expController,
+                inputFormatters: [
+                  FilteringTextInputFormatter
+                      .digitsOnly, // Ensure only numbers are allowed
+                  ExpiryDateInputFormatter(), // Add "-" after the first four numbers and set the first two characters as "2" and "0"
+                ],
               ),
-            ),
-            TextField(
-              onChanged: (value) {
-                par = int.tryParse(value) ?? 0;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Par',
+              TextField(
+                onChanged: (value) {
+                  par = int.tryParse(value) ?? 0;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Par',
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter
+                      .digitsOnly, // Ensure only numbers are allowed
+                ],
               ),
-              keyboardType: TextInputType.number,
-            ),
-            TextField(
-              onChanged: (value) {
-                amountExpiring = int.tryParse(value) ?? 0;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Amount Expiring',
+              TextField(
+                onChanged: (value) {
+                  amountExpiring = int.tryParse(value) ?? 0;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Amount Expiring',
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter
+                      .digitsOnly, // Ensure only numbers are allowed
+                ],
               ),
-              keyboardType: TextInputType.number,
-            ),
-            TextField(
-              onChanged: (value) {
-                count = int.tryParse(value) ?? 0;
-              },
-              decoration: const InputDecoration(
-                labelText: 'Count',
+              TextField(
+                onChanged: (value) {
+                  count = int.tryParse(value) ?? 0;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Count',
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter
+                      .digitsOnly, // Ensure only numbers are allowed
+                ],
               ),
-              keyboardType: TextInputType.number,
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -142,16 +167,24 @@ void editItemDialog(
     String initialLocation,
     String initialExp,
     int initialPar,
-    int initialAmountExpiring) {
+    int initialAmountExpiring,
+    int initialCount) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
       String itemName = initialName;
-      int count = 0;
+      int count = initialCount;
       int par = initialPar;
       int amountExpiring = initialAmountExpiring;
-      String location = initialLocation; // Set the initial value of location
-      String exp = initialExp; // Set the initial value of exp
+      String location = initialLocation;
+      String exp = initialExp;
+      final TextEditingController countController =
+          TextEditingController(text: count.toString());
+      final TextEditingController amountExpiringController =
+          TextEditingController(text: amountExpiring.toString());
+      final TextEditingController parController =
+          TextEditingController(text: par.toString());
+      final expController = TextEditingController(text: exp); //new
 
       return AlertDialog(
         title: Text('Edit $itemName'),
@@ -186,45 +219,139 @@ void editItemDialog(
                   exp = value;
                 },
                 decoration: const InputDecoration(
-                  labelText: 'Expiration Date (YYYY-MM)',
+                  labelText: 'Expiration Date (YYYYMM)',
                 ),
-                controller: TextEditingController(
-                    text:
-                        exp), // Set the initial value of the TextField for Expiration Date
+                keyboardType: TextInputType.number,
+                controller: expController,
+                inputFormatters: [
+                  FilteringTextInputFormatter
+                      .digitsOnly, // Ensure only numbers are allowed
+                  ExpiryDateInputFormatter(), // Add "-" after the first four numbers and set the first two characters as "2" and "0"
+                ],
               ),
               //! Admin Only
-              TextField(
-                onChanged: (value) {
-                  par = int.tryParse(value) ?? 0;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Par',
-                ),
-                controller: TextEditingController(
-                  text: par.toString(), // Convert par to a String
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged: (value) {
+                        par = int.tryParse(value) ?? -1;
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Par',
+                      ),
+                      keyboardType: TextInputType.number,
+                      controller: parController,
+                      inputFormatters: [
+                        FilteringTextInputFormatter
+                            .digitsOnly, // Ensure only numbers are allowed
+                      ],
+                    ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_drop_up),
+                        onPressed: () {
+                          par++;
+                          parController.text = par.toString();
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_drop_down),
+                        onPressed: () {
+                          par--;
+                          parController.text = par.toString();
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              TextField(
-                onChanged: (value) {
-                  amountExpiring = int.tryParse(value) ?? 0;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Amount Expiring',
-                ),
-                keyboardType: TextInputType.number,
-                controller: TextEditingController(
-                  text: amountExpiring.toString(), // Set the initial value
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged: (value) {
+                        amountExpiring = int.tryParse(value) ?? 0;
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Amount Expiring',
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter
+                            .digitsOnly, // Ensure only numbers are allowed
+                      ],
+                    ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_drop_up),
+                        onPressed: () {
+                          amountExpiring++;
+                          amountExpiringController.text =
+                              amountExpiring.toString();
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_drop_down),
+                        onPressed: () {
+                          amountExpiring--;
+                          amountExpiringController.text =
+                              amountExpiring.toString();
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              TextField(
-                onChanged: (value) {
-                  count = int.tryParse(value) ?? 0;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Count',
-                ),
-                keyboardType: TextInputType.number,
-              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged: (value) {
+                        amountExpiring = int.tryParse(value) ?? 0;
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Amount Expiring',
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter
+                            .digitsOnly, // Ensure only numbers are allowed
+                      ],
+                    ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_drop_up),
+                        onPressed: () {
+                          count++;
+                          countController.text =
+                              count.toString(); // Update the controller's value
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_drop_down),
+                        onPressed: () {
+                          count--;
+                          countController.text =
+                              count.toString(); // Update the controller's value
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              )
             ],
           ),
         ),

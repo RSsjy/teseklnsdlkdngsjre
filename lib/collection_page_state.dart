@@ -177,6 +177,7 @@ void itemOptionsDialog(BuildContext context, DocumentSnapshot itemData,
   int itemPar = itemData['par'] as int? ?? 0;
   int itemAmountExpiring = itemData['amount expiring'] as int? ??
       0; // Extract the 'amount expiring' value
+  int itemCount = itemData['count'] as int? ?? 0; // Extract the 'count' value
 
   showDialog(
     context: context,
@@ -209,7 +210,8 @@ void itemOptionsDialog(BuildContext context, DocumentSnapshot itemData,
                   itemExp,
                   itemPar,
                   itemAmountExpiring,
-                ); // Pass the 'amount expiring' value
+                  itemCount, // Pass the 'count' value
+                );
               },
               child: const Text('Update'),
             ),
